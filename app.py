@@ -1,0 +1,262 @@
+import streamlit as st
+import pickle
+from sklearn.feature_extraction.text import CountVectorizer
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+import pandas as pd
+from io import BytesIO
+import seaborn as sns
+from gensim.models import LdaModel
+from gensim.corpora import Dictionary
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from gensim import corpora
+from collections import defaultdict
+from sklearn.decomposition import LatentDirichletAllocation
+st.set_option('deprecation.showPyplotGlobalUse', False)
+
+tab1, tab2, tab3, tab4, tab5, tab6= st.tabs(['Business Case','Model Performance', 'Predict Sentimen', 'Topic Modeling', 'Dataset', 'Conclusion'])
+
+# load clean dataset
+data_clean = pd.read_pickle('data_clean.pickle')
+data_raw = pd.read_pickle('data_raw.pickle')
+
+# Membuat Word Cloud Untuk Background
+text = " ".join(review for review in data_clean.text)
+wordcloud = WordCloud(background_color="white").generate(text)
+
+# Menampilkan Word Cloud di Streamlit
+fig, ax = plt.subplots(figsize=(8, 8))
+ax.imshow(wordcloud, interpolation='bilinear')
+ax.axis("off")
+
+# Menggunakan BytesIO untuk menyimpan gambar
+image_stream = BytesIO()
+plt.savefig(image_stream, format="png")
+plt.close(fig)
+
+#Load File Evaluasi
+with open('all_evaluations.pickle', 'rb') as evaluations_file:
+    all_evaluations = pickle.load(evaluations_file)
+
+# Membuat DataFrame dari data evaluasi
+df_evaluations = pd.DataFrame.from_dict({(model, aspect, metric): all_evaluations[model][aspect][metric] 
+                                         for model in all_evaluations.keys() 
+                                         for aspect in all_evaluations[model].keys() 
+                                         for metric in all_evaluations[model][aspect].keys()},
+                                        orient='index', columns=['Score'])
+
+# Predict sentimen baru
+def predict_sentiment(new_text, model_type='naive_bayes'):
+    # Membaca kembali model dari file pickle
+    with open(f'{model_type}.pickle', 'rb') as model_file:
+        models = pickle.load(model_file)
+
+    # Membaca kembali objek CountVectorizer dari file
+    with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
+        vectorizer = pickle.load(vectorizer_file)
+
+    # Mengonversi teks menggunakan CountVectorizer
+    new_text_vec = vectorizer.transform([new_text])
+
+    # Melakukan prediksi sentimen untuk setiap kategori dan model
+    predictions = {}
+
+    for category, model in models.items():
+        sentiment = model.predict(new_text_vec)
+        predictions[f"{model_type.capitalize()} ({category}) "] = sentiment[0]
+
+    return predictions
+
+
+# WordCloud untuk LDA (Per Aspek)
+def generate_wordcloud(sentiment_column, display_positive=True, display_negative=True):
+    if display_negative:
+        text_neg = ' '.join(data_clean[data_clean[sentiment_column] == 'Negatif']['text'])  # Negative sentiment
+        st.subheader(f"Word Cloud for Negative Sentiment in {sentiment_column}")
+        wordcloud_neg = WordCloud(width=800, height=400, background_color='white').generate(text_neg)
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud_neg, interpolation='bilinear')
+        plt.axis('off')
+        st.pyplot()
+
+    if display_positive:
+        text_pos = ' '.join(data_clean[data_clean[sentiment_column] == 'Positif']['text'])  # Positive sentiment
+        st.subheader(f"Word Cloud for Positive Sentiment in {sentiment_column}")
+        wordcloud_pos = WordCloud(width=800, height=400, background_color='white').generate(text_pos)
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud_pos, interpolation='bilinear')
+        plt.axis('off')
+        st.pyplot()
+
+# WordCloud untuk LDA (Semua Aspek)
+def generate_combined_wordcloud(display_positive=True, display_negative=True):
+    text = ' '.join(data_clean['text'])
+    st.subheader("Word Cloud for Combined Text")
+    
+    if display_negative:
+        wordcloud_neg = WordCloud(width=800, height=400, background_color='white').generate(text)
+        st.subheader("Negative Sentiment")
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud_neg, interpolation='bilinear')
+        plt.axis('off')
+        st.pyplot()
+
+    if display_positive:
+        wordcloud_pos = WordCloud(width=800, height=400, background_color='white').generate(text)
+        st.subheader("Positive Sentiment")
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud_pos, interpolation='bilinear')
+        plt.axis('off')
+        st.pyplot()
+
+
+# Streamlit App
+
+with tab1:
+    st.markdown(""" ## Background
+    Untuk meningkatkan kualitas pariwisata, pendapat dan ulasan pengunjung dianggap sebagai wawasan berharga untuk meningkatkan layanan. Dengan kemajuan teknologi informasi, ulasan pengunjung dapat ditemukan di internet dan platform media sosial. Namun, ada dua tantangan dalam memanfaatkan data ulasan online. Tantangan pertama adalah bagaimana cara mendapatkan sejumlah besar data ulasan yang tersebar di internet. Tantangan kedua adalah bagaimana mengolah data ulasan ini untuk mengambil wawasan yang berguna. Untuk masalah pertama, teknik web scraping adalah salah satu metode yang umum digunakan saat ini. Ini melibatkan ekstraksi data dari halaman web atau dokumen lain dengan tujuan mengambil informasi yang terstruktur atau tidak terstruktur dan menyimpannya dalam format yang dapat digunakan. Sementara itu, untuk tantangan kedua, metode berpikir kritis dapat digunakan oleh manusia untuk mengatasi masalah ini dengan membaca dan merangkum ulasan. Namun, ini menjadi tantangan baru ketika ulasan dihasilkan dengan cepat (velocity) dan dalam jumlah besar (volume). Ini berarti mengandalkan metode berpikir kritis saja mungkin tidak cukup. Selain itu, pertimbangan lainnya adalah bahwa teknik analisis manusia seringkali bersifat "subjektif" dan dapat berbeda tergantung pada sudut pandang penilai.
+    ## Project Idea
+    Evaluasi kualitas layanan pariwisata di candi borobudur dapat dilakukan dengan memanfaatkan ulasan internet. Oleh karena itu, pada project ini akan dikembangkan sebuah model analisis sentimen berbasis aspek periwisata untuk evaluasi pelayanan serta topik modeling untuk identifikasi topik-topik terkait aspek pelayanan tersebut.
+    ## Problem Scope
+    Pada project ini akan digunakan Data ulasan yang berasal dari hasil scraping pada platform google maps terkait destinasi wisata candi borobudur.
+    asil scraping kemudian di anotasi dengan oleh tiga orang anotator berbeda agar penilaian sentimen tidak subjektif. Metode penentuan label akhir yaitu apakah positif, negatif, netral untuk setiap aspek dilakukan dengan voting nilai terbanyak.
+
+    Dataset yang telah di anotasi mengandung informasi sebagai berikut:
+    - Nomor     : Urutan ulasan
+    - Ulasan    : Ulasan dalam bahasa indonesia
+    - DayaTarik : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
+    - Amenitas  : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
+    - Aksesibilitas : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
+    - Citra     : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
+    - Harga     : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
+    - SDM   : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
+    
+    Selanjutnya, dataset tersebut akan di latih dengan beberapa model machine learning untuk mencari model dengan preforma terbaik. Model dengan performa terbaik akan digunakan untuk membuat analisis sentimen berbasis aspek. Kemudian dilakukan topic modeling dengan LDA pada masing-masing aspek untuk menemukan topik-topik yang berpengaruh pada aspek tersebut.
+    ## Business Impact 
+    Untuk Untuk pengelola destinasi wisata, hasil proyek ini dapat memiliki beberapa manfaat yang signifikan:
+    1. Peningkatan Pelayanan: Hasil proyek ini dapat digunakan sebagai referensi untuk meningkatkan kualitas pelayanan di sekitar objek pariwisata. Dengan menganalisis ulasan dari pengunjung, pengelola dapat mengidentifikasi aspek-aspek yang perlu diperbaiki dalam layanan mereka. Ini dapat mencakup masalah seperti keramahan staf, kebersihan, fasilitas, dan lainnya. Dengan informasi ini, pengelola dapat melakukan perbaikan yang lebih terarah.
+    2. Informasi yang Lebih Mendalam: Analisis ulasan yang mencakup aspek dan topik terkait dapat membantu pengelola untuk menggali informasi yang lebih mendalam tentang apa yang perlu ditingkatkan dalam layanan mereka. Ini tidak hanya mencakup masalah umum, tetapi juga detail-detail yang mungkin terlewatkan tanpa tinjauan yang cermat.
+    3. Efisiensi Anggaran: Proyek ini juga dapat membantu pengelola menghemat anggaran yang biasanya digunakan untuk mengukur kepuasan pelanggan secara tradisional. Metode tradisional seringkali melibatkan survei yang mahal dan sumber daya lainnya. Dengan menggunakan ulasan online yang sudah ada, pengelola dapat mendapatkan wawasan yang sama atau lebih baik tanpa biaya tambahan.
+    4. Peningkatan Reputasi: Dengan mengambil tindakan yang sesuai berdasarkan ulasan, pengelola dapat meningkatkan reputasi destinasi mereka. Ulasan positif dari pengunjung akan menarik lebih banyak pelanggan potensial, sementara perbaikan yang dilakukan akan mengurangi keluhan dan ulasan negatif.
+    5. Pengambilan Keputusan yang Lebih Baik: Informasi yang diberikan oleh hasil proyek ini dapat menjadi panduan berharga untuk pengelola destinasi dalam mengambil keputusan terkait perbaikan layanan, pengembangan fasilitas, atau strategi pemasaran.
+    
+    Secara keseluruhan, hasil proyek ini dapat memberikan wawasan berharga kepada pengelola destinasi wisata, membantu mereka meningkatkan pengalaman pengunjung, menghemat biaya, dan meningkatkan reputasi destinasi mereka.
+    """)
+    st.header("WordCloud")
+    # Menampilkan gambar menggunakan st.image
+    st.image(image_stream.getvalue(), use_column_width=True)
+
+with tab2:
+    # Streamlit App
+    st.title("Model Evaluation Metrics")
+    model_list = list(all_evaluations.keys())
+    selected_model = st.selectbox("Pilih Model", ["Semua Model"] + model_list)
+
+    aspek_list = list(all_evaluations[model_list[0]].keys())
+    selected_aspek = st.selectbox("Pilih Aspek", ["Semua Aspek"] + aspek_list)
+
+    # Filter data based on user selection
+    if selected_model == "Semua Model":
+        models_to_plot = model_list
+    else:
+        models_to_plot = [selected_model]
+
+    if selected_aspek == "Semua Aspek":
+        aspek_to_plot = aspek_list
+    else:
+        aspek_to_plot = [selected_aspek]
+
+    # Create a DataFrame for seaborn
+    data = {'Model': [], 'Aspek': [], 'Metric': [], 'Value': []}
+    for model in models_to_plot:
+        for aspek in aspek_to_plot:
+            for metric, value in all_evaluations[model][aspek].items():
+                data['Model'].append(model)
+                data['Aspek'].append(aspek)
+                data['Metric'].append(metric)
+                data['Value'].append(value)
+
+    df = pd.DataFrame(data)
+
+    # Plot using seaborn
+    plt.figure(figsize=(12, 8))
+    sns.barplot(x='Metric', y='Value', hue='Model', data=df, ci=None)
+    plt.title(f"Evaluasi Model untuk {', '.join(aspek_to_plot)}")
+    plt.xlabel("Metric Evaluasi")
+    plt.ylabel("Nilai Evaluasi")
+    st.pyplot(plt)
+
+with tab3:
+    st.write("### Prediksi Sentiment ###")
+    # Input teks
+    new_text = st.text_area("Masukkan kalimat untuk diprediksi sentimennya:")
+
+    # Pilihan model
+    model_type = st.selectbox("Pilih Model Machine Learning:", ['nb_models', 'svm_models', 'rf_models', 'dt_models', 'lr_models'])
+
+    # Tombol untuk melakukan prediksi
+    if st.button("Prediksi Sentimen"):
+        
+        if new_text:
+            predictions = predict_sentiment(new_text, model_type=model_type)
+            # Menampilkan hasil prediksi
+            st.subheader("Hasil Prediksi Sentimen:")
+            for model_category, sentiment in predictions.items():
+                st.write(f"{model_category}: {sentiment}")
+        else:
+            st.warning("Masukkan kalimat terlebih dahulu.")
+
+with tab4:
+    def main():
+        st.title("Topic Modeling dengan LDA")
+
+        # Select option
+        option = st.radio("Select Option", ['All Aspects', 'Select Aspect'])
+    
+        if option == 'Select Aspect':
+            # Select aspect
+            selected_aspect = st.selectbox("Select Aspect", data_clean.columns[2:])
+        
+            # Display positive and/or negative sentiment word clouds
+            display_positive = st.checkbox("Display Positive Sentiment", value=True)
+            display_negative = st.checkbox("Display Negative Sentiment", value=True)
+        
+            # Generate and display word cloud
+            generate_wordcloud(selected_aspect, display_positive, display_negative)
+        else:
+            # Display positive and/or negative sentiment word clouds
+            display_positive = st.checkbox("Display Positive Sentiment", value=True)
+            display_negative = st.checkbox("Display Negative Sentiment", value=True)
+        
+            # Generate and display word cloud for combined text
+            generate_combined_wordcloud(display_positive, display_negative)
+
+    if __name__ == "__main__":
+        main()
+
+with tab5:
+    # Create a DataFrame
+    data_tampil = pd.DataFrame(data_raw)
+
+    # Streamlit App
+    st.title('Dataset Candi Borobudur')
+
+    # Pilihan aspek
+    selected_aspek = st.selectbox('Pilih Aspek:', ['Semua Aspek'] + list(data_tampil.columns[2:]))
+
+    # Pilihan sentimen
+    selected_sentimen = st.selectbox('Pilih Sentimen:', ['Semua Sentimen', 'Positif', 'Negatif'])
+
+    # Filter DataFrame berdasarkan pilihan
+    if selected_aspek != 'Semua Aspek':
+        data_tampil = data_tampil[['lokasi', 'text', selected_aspek]]
+
+    if selected_sentimen != 'Semua Sentimen':
+        if selected_aspek == 'Semua Aspek':
+            data_tampil = data_tampil[data_tampil.apply(lambda row: row.str.contains(selected_sentimen, case=False) if row.name in data_tampil.columns[2:] else True, axis=1)]
+        else:
+            data_tampil = data_tampil[data_tampil[selected_aspek] == selected_sentimen]
+
+    # Tampilkan DataFrame
+    st.dataframe(data_tampil)
