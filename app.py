@@ -13,9 +13,8 @@ from nltk.corpus import stopwords
 from gensim import corpora
 from collections import defaultdict
 from sklearn.decomposition import LatentDirichletAllocation
+from streamlit_option_menu import option_menu
 st.set_option('deprecation.showPyplotGlobalUse', False)
-
-tab1, tab2, tab3, tab4, tab5, tab6= st.tabs(['Business Case','Model Performance', 'Predict Sentimen', 'Topic Modeling', 'Dataset', 'Conclusion'])
 
 # load clean dataset
 data_clean = pd.read_pickle('data_clean.pickle')
@@ -92,7 +91,7 @@ def generate_wordcloud(sentiment_column, display_positive=True, display_negative
 # WordCloud untuk LDA (Semua Aspek)
 def generate_combined_wordcloud(display_positive=True, display_negative=True):
     text = ' '.join(data_clean['text'])
-    st.subheader("Word Cloud for Combined Text")
+    st.subheader("Word Cloud of Topic Modeling")
     
     if display_negative:
         wordcloud_neg = WordCloud(width=800, height=400, background_color='white').generate(text)
@@ -112,8 +111,26 @@ def generate_combined_wordcloud(display_positive=True, display_negative=True):
 
 
 # Streamlit App
+#selected_tab = st.sidebar.radio("Choose a tab", ['Business Case','Model Performance', 'Predict Sentimen', 'Topic Modeling', 'Dataset', 'About Me'])
 
-with tab1:
+with st.sidebar:
+    selected_tab = option_menu(
+        menu_title = "Main Menu",
+        options=['Business Case','Model Performance', 'Predict Sentimen', 'Topic Modeling', 'Dataset', 'About Me'],
+        icons=["house", "file-bar-graph", "filter-circle", "diagram-3", "database", "person"],
+        menu_icon="cast",  # optional
+        default_index=0,  # optional
+        styles={
+
+                "icon": {"color": "orange"},
+                "nav-link": {
+                    "--hover-color": "#eee",
+                },
+                "nav-link-selected": {"background-color": "green"},
+            },
+        )
+
+if selected_tab == 'Business Case':
     st.markdown(""" ## Background
     Untuk meningkatkan kualitas pariwisata, pendapat dan ulasan pengunjung dianggap sebagai wawasan berharga untuk meningkatkan layanan. Dengan kemajuan teknologi informasi, ulasan pengunjung dapat ditemukan di internet dan platform media sosial. Namun, ada dua tantangan dalam memanfaatkan data ulasan online. Tantangan pertama adalah bagaimana cara mendapatkan sejumlah besar data ulasan yang tersebar di internet. Tantangan kedua adalah bagaimana mengolah data ulasan ini untuk mengambil wawasan yang berguna. Untuk masalah pertama, teknik web scraping adalah salah satu metode yang umum digunakan saat ini. Ini melibatkan ekstraksi data dari halaman web atau dokumen lain dengan tujuan mengambil informasi yang terstruktur atau tidak terstruktur dan menyimpannya dalam format yang dapat digunakan. Sementara itu, untuk tantangan kedua, metode berpikir kritis dapat digunakan oleh manusia untuk mengatasi masalah ini dengan membaca dan merangkum ulasan. Namun, ini menjadi tantangan baru ketika ulasan dihasilkan dengan cepat (velocity) dan dalam jumlah besar (volume). Ini berarti mengandalkan metode berpikir kritis saja mungkin tidak cukup. Selain itu, pertimbangan lainnya adalah bahwa teknik analisis manusia seringkali bersifat "subjektif" dan dapat berbeda tergantung pada sudut pandang penilai.
     ## Project Idea
@@ -147,47 +164,82 @@ with tab1:
     # Menampilkan gambar menggunakan st.image
     st.image(image_stream.getvalue(), use_column_width=True)
 
-with tab2:
+elif selected_tab == 'Model Performance':
     # Streamlit App
     st.title("Model Evaluation Metrics")
-    model_list = list(all_evaluations.keys())
-    selected_model = st.selectbox("Pilih Model", ["Semua Model"] + model_list)
+    # Sidebar
+    st.title("Pilihan Tampilan")
+    table_data = []
+    for model, aspek_dict in all_evaluations.items():
+        for aspek, metrics in aspek_dict.items():
+            table_data.append({
+                'Model': model,
+                'Aspek': aspek,
+                'Accuracy': metrics['accuracy']
+            })
 
-    aspek_list = list(all_evaluations[model_list[0]].keys())
-    selected_aspek = st.selectbox("Pilih Aspek", ["Semua Aspek"] + aspek_list)
+        df_table = pd.DataFrame(table_data)
+    
+    tab1, tab2 = st.tabs(["Tabel", "Plot"])
 
-    # Filter data based on user selection
-    if selected_model == "Semua Model":
-        models_to_plot = model_list
-    else:
-        models_to_plot = [selected_model]
+    # Tampilan Tabel
+    with tab1:
+       # Create DataFrame for table
+        # Display table
+        st.table(df_table.pivot_table(index='Model', columns='Aspek', values='Accuracy', aggfunc='mean', margins=True, margins_name='Total'))
 
-    if selected_aspek == "Semua Aspek":
-        aspek_to_plot = aspek_list
-    else:
-        aspek_to_plot = [selected_aspek]
+        
+    with tab2:
+        model_list = list(all_evaluations.keys())
+        selected_model = st.selectbox("Pilih Model", ["Semua Model"] + model_list)
 
-    # Create a DataFrame for seaborn
-    data = {'Model': [], 'Aspek': [], 'Metric': [], 'Value': []}
-    for model in models_to_plot:
-        for aspek in aspek_to_plot:
-            for metric, value in all_evaluations[model][aspek].items():
-                data['Model'].append(model)
-                data['Aspek'].append(aspek)
-                data['Metric'].append(metric)
-                data['Value'].append(value)
+        aspek_list = list(all_evaluations[model_list[0]].keys())
+        selected_aspek = st.selectbox("Pilih Aspek", ["Semua Aspek"] + aspek_list)
 
-    df = pd.DataFrame(data)
+        # Filter data based on user selection
+        if selected_model == "Semua Model":
+            models_to_plot = model_list
+        else:
+            models_to_plot = [selected_model]
 
-    # Plot using seaborn
-    plt.figure(figsize=(12, 8))
-    sns.barplot(x='Metric', y='Value', hue='Model', data=df, ci=None)
-    plt.title(f"Evaluasi Model untuk {', '.join(aspek_to_plot)}")
-    plt.xlabel("Metric Evaluasi")
-    plt.ylabel("Nilai Evaluasi")
-    st.pyplot(plt)
+        if selected_aspek == "Semua Aspek":
+            aspek_to_plot = aspek_list
+        else:
+            aspek_to_plot = [selected_aspek]
 
-with tab3:
+        # Create a DataFrame for seaborn
+        data = {'Model': [], 'Aspek': [], 'Metric': [], 'Value': []}
+        for model in models_to_plot:
+            for aspek in aspek_to_plot:
+                for metric, value in all_evaluations[model][aspek].items():
+                    data['Model'].append(model)
+                    data['Aspek'].append(aspek)
+                    data['Metric'].append(metric)
+                    data['Value'].append(value)
+
+        df = pd.DataFrame(data)
+
+        # Plot using seaborn
+        plt.figure(figsize=(12, 8))
+        sns.barplot(x='Metric', y='Value', hue='Model', data=df, ci=None)
+        plt.title(f"Evaluasi Model untuk {', '.join(aspek_to_plot)}")
+        plt.xlabel("Metric Evaluasi")
+        plt.ylabel("Nilai Evaluasi")
+        st.pyplot(plt)
+
+    # Kesimpulan
+    st.subheader("Kesimpulan:")
+    # 1. Model terbaik berdasarkan accuracy
+    st.write("1. Model terbaik berdasarkan accuracy adalah: Logistic Regression")
+    st.write("2. Model terbaik untuk mengukur aspek Aksesibilitas: Logistic Regression")
+    st.write("3. Model terbaik untuk mengukur aspek Amenitas: Logistic Regression")
+    st.write("4. Model terbaik untuk mengukur aspek Citra: SVM")
+    st.write("5. Model terbaik untuk mengukur aspek Daya Tarik: Logistic Regression")
+    st.write("6. Model terbaik untuk mengukur aspek Harga: Logistic Regression")
+    st.write("7. Model terbaik untuk mengukur aspek SDM: SVM")
+
+
+elif selected_tab == 'Predict Sentimen':
     st.write("### Prediksi Sentiment ###")
     # Input teks
     new_text = st.text_area("Masukkan kalimat untuk diprediksi sentimennya:")
@@ -207,7 +259,7 @@ with tab3:
         else:
             st.warning("Masukkan kalimat terlebih dahulu.")
 
-with tab4:
+elif selected_tab == 'Topic Modeling':
     def main():
         st.title("Topic Modeling dengan LDA")
 
@@ -235,7 +287,7 @@ with tab4:
     if __name__ == "__main__":
         main()
 
-with tab5:
+elif selected_tab == 'Dataset':
     # Create a DataFrame
     data_tampil = pd.DataFrame(data_raw)
 
@@ -260,3 +312,34 @@ with tab5:
 
     # Tampilkan DataFrame
     st.dataframe(data_tampil)
+
+elif selected_tab == 'About Me':
+    # Judul halaman
+    st.subheader("About Me")
+
+    st.write("- **Nama Lengkap:** Jayadi Butar Butar")
+    st.write("- **Alamat:** Jakarta, Indonesia")
+    st.write("- **Email:** jayadidetormentor@gmail.com")
+
+    # Summary
+    st.subheader("Summary")
+    st.write("""
+    I'm a motivated Data Professional with a strong background in scientific research, Data Science, and Machine Learning. 
+    Proficient in Python, Rstudio, SQL, and Spreadsheets, I excel in qualitative and quantitative research. 
+    My dynamic academic journey honed my strategic thinking, leadership, and problem-solving skills.
+
+    I derive valuable insights from complex datasets and excel in presenting them for data-driven decision-making. 
+    Passionate about Statistics, Data Science, and AI, I aim to make a significant impact in the world of data.
+
+    Eager to learn and grow, I stay updated with the latest industry advancements through active training and self-directed learning. 
+    My goal is to leverage my skills in data analysis and machine learning to solve complex problems and achieve meaningful outcomes.
+    
+    If you're looking for a dedicated and analytical team player thriving in a data-driven environment, let's connect for outstanding results.
+    """)
+
+
+    # Tautan ke Akun Sosial Media
+    st.subheader("Projects Portofolio")
+    st.write("- [LinkedIn](https://www.linkedin.com/in/jayadib/)")
+    st.write("- [rPubs](https://rpubs.com/JayadiB/)")
+    st.write("- [GitHub](https://github.com/Jay4di)")
