@@ -20,6 +20,10 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 data_clean = pd.read_pickle('data_clean.pickle')
 data_raw = pd.read_pickle('data_raw.pickle')
 
+# Membaca kembali objek CountVectorizer dari file
+with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
+    vectorizer = pickle.load(vectorizer_file)
+
 # Membuat Word Cloud Untuk Background
 text = " ".join(review for review in data_clean.text)
 wordcloud = WordCloud(background_color="white").generate(text)
@@ -52,8 +56,8 @@ def predict_sentiment(new_text, model_type='naive_bayes'):
         models = pickle.load(model_file)
 
     # Membaca kembali objek CountVectorizer dari file
-    with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
-        vectorizer = pickle.load(vectorizer_file)
+    #with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
+        #vectorizer = pickle.load(vectorizer_file)
 
     # Mengonversi teks menggunakan CountVectorizer
     new_text_vec = vectorizer.transform([new_text])
@@ -293,8 +297,8 @@ elif selected_tab == 'Predict Sentimen':
             models = pickle.load(model_file)
         
         # Membaca kembali objek CountVectorizer dari file
-        with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
-            vectorizer = pickle.load(vectorizer_file)
+        #with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
+            #vectorizer = pickle.load(vectorizer_file)
         
         # Mengonversi teks menggunakan CountVectorizer
         X = vectorizer.transform(df['text'])
