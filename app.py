@@ -317,10 +317,9 @@ elif selected_tab == 'Topic Modeling':
         st.title("Topic Modeling dengan LDA")
 
         # Select option
-        #option = st.radio("Select Option", ['All Aspects', 'Select Aspect'])
-        tab_select, tab_all = st.tabs(["Select Aspect", "All Aspect"])
-        with tab_select: 
-        #if option == 'Select Aspect':
+        option = st.radio("Select Option", ['All Aspects', 'Select Aspect'])
+        
+        if option == 'Select Aspect':
             # Select aspect
             selected_aspect = st.selectbox("Select Aspect", data_clean.columns[2:])
         
@@ -330,8 +329,7 @@ elif selected_tab == 'Topic Modeling':
         
             # Generate and display word cloud
             generate_wordcloud(selected_aspect, display_positive, display_negative)
-        with tab_all:
-        #else:
+        else:
             # Display positive and/or negative sentiment word clouds
             display_positive = st.checkbox("Display Positive Sentiment", value=True)
             display_negative = st.checkbox("Display Negative Sentiment", value=True)
