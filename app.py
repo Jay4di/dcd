@@ -156,10 +156,10 @@ if selected_tab == 'Business Case':
     ## Project Idea
     Evaluasi kualitas layanan pariwisata di candi borobudur dapat dilakukan dengan memanfaatkan ulasan internet. Oleh karena itu, pada project ini akan dikembangkan sebuah model analisis sentimen berbasis aspek periwisata untuk evaluasi pelayanan serta topik modeling untuk identifikasi topik-topik terkait aspek pelayanan tersebut.
     ## Problem Scope
-    Pada project ini akan digunakan Data ulasan yang berasal dari hasil scraping pada platform google maps terkait destinasi wisata candi borobudur.
-    ## Dataset
-    Data hasil scraping kemudian di anotasi dengan oleh tiga orang anotator berbeda agar penilaian sentimen tidak subjektif. Metode penentuan label akhir yaitu apakah positif, negatif, netral untuk setiap aspek dilakukan dengan voting nilai terbanyak. Selanjutnya, dataset tersebut akan di latih dengan beberapa model machine learning untuk mencari model dengan preforma terbaik. Model dengan performa terbaik akan digunakan untuk membuat analisis sentimen berbasis aspek. Kemudian dilakukan topic modeling dengan LDA pada masing-masing aspek untuk menemukan topik-topik yang berpengaruh pada aspek tersebut.
+    Pada project ini akan digunakan Data ulasan yang berasal dari hasil scraping pada platform google maps terkait destinasi wisata candi borobudur. Selanjutnya, dataset tersebut akan di latih dengan beberapa model machine learning untuk mencari model dengan preforma terbaik. Model dengan performa terbaik akan digunakan untuk membuat analisis sentimen berbasis aspek. Kemudian dilakukan topic modeling dengan LDA pada masing-masing aspek untuk menemukan topik-topik yang berpengaruh pada aspek tersebut.
 
+    ## Dataset
+    Data hasil scraping kemudian di anotasi dengan oleh tiga orang anotator berbeda agar penilaian sentimen tidak subjektif. Metode penentuan label akhir yaitu apakah positif, negatif, netral untuk setiap aspek dilakukan dengan voting nilai terbanyak. 
     Dataset yang telah di anotasi mengandung informasi sebagai berikut:
     - Nomor     : Urutan ulasan
     - Ulasan    : Ulasan dalam bahasa indonesia
