@@ -188,7 +188,7 @@ elif selected_tab == 'Model Performance':
     # Streamlit App
     st.title("Model Evaluation Metrics")
     # Sidebar
-    st.title("Pilihan Tampilan")
+    st.subheader("Pilihan Tampilan")
     table_data = []
     for model, aspek_dict in all_evaluations.items():
         for aspek, metrics in aspek_dict.items():
