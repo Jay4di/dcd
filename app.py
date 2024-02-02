@@ -294,26 +294,21 @@ elif selected_tab == 'Predict Sentimen':
             # Mengonversi teks menggunakan CountVectorizer
             X = vectorizer.transform(df_new['text'])
 
-        # Membaca kembali model dari file pickle
-        with open(f'{model_type}_models.pickle', 'rb') as model_file:
-            models = pickle.load(model_file)
-        
-        # Membaca kembali objek CountVectorizer dari file
-        #with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
-            #vectorizer = pickle.load(vectorizer_file)
-        
+            # Membaca kembali model dari file pickle
+            with open(f'{model_type}_models.pickle', 'rb') as model_file:
+                models = pickle.load(model_file)
 
-        # Mengevaluasi model
-        predictions = pd.DataFrame({'id': df_new['id'], 'text': df_new['text']})
-        for category, model in models.items():
-            sentiment = model.predict(X)
-            predictions[f'{category}_sentiment'] = sentiment
+            # Mengevaluasi model
+            predictions = pd.DataFrame({'id': df_new['id'], 'text': df_new['text']})
+            for category, model in models.items():
+                sentiment = model.predict(X)
+                predictions[f'{category}_sentiment'] = sentiment
 
-        # Menampilkan hasil prediksi
-        show_prediction_table(predictions)
+            # Menampilkan hasil prediksi
+            show_prediction_table(predictions)
 
-        # Menampilkan diagram batang rangkuman prediksi
-        show_summary_plot(predictions)
+            # Menampilkan diagram batang rangkuman prediksi
+            show_summary_plot(predictions)
 
 
 elif selected_tab == 'Topic Modeling':
