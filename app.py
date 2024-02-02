@@ -262,8 +262,9 @@ elif selected_tab == 'Model Performance':
 elif selected_tab == 'Predict Sentimen':
     st.write("### Prediksi Sentiment ###")
     # Input teks
-    tab_predict = st.tabs(["Write Comment", "Upload CSV"])
-    if tab_predict == 'Write Comment':
+            # Select option
+    option_predict = st.radio("Select Option", ['Write Comment', 'Upload CSV'])
+    if option_predict == 'Write Comment':
         new_text = st.text_area("Masukkan kalimat untuk diprediksi sentimennya:")
 
         # Pilihan model
@@ -280,7 +281,7 @@ elif selected_tab == 'Predict Sentimen':
                     st.write(f"{model_category}: {sentiment}")
             else:
                 st.warning("Masukkan kalimat terlebih dahulu.")
-    elif tab_predict == 'Upload CSV':
+    else:
         # Input file CSV
         uploaded_file = st.file_uploader("Upload File CSV", type=["csv"])
         df_new = {}
