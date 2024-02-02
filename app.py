@@ -188,7 +188,7 @@ elif selected_tab == 'Model Performance':
     # Streamlit App
     st.title("Model Evaluation Metrics")
     # Sidebar
-    st.text("Select Mode")
+    st.text("Select View")
     table_data = []
     for model, aspek_dict in all_evaluations.items():
         for aspek, metrics in aspek_dict.items():
@@ -263,8 +263,9 @@ elif selected_tab == 'Predict Sentimen':
     st.write("### Prediksi Sentiment ###")
     # Input teks
     # Select option
-    option_predict = st.radio("Select Option", ['Write Comment', 'Upload CSV'])
-    if option_predict == 'Write Comment':
+    #option_predict = st.radio("Select Option", ['Write Comment', 'Upload CSV'])
+    tab_comment, tab_csv = st.tabs(["Write Comment", "Upload CSV"])
+    with tab_comment:
         new_text = st.text_area("Masukkan kalimat untuk diprediksi sentimennya:")
 
         # Pilihan model
@@ -281,7 +282,7 @@ elif selected_tab == 'Predict Sentimen':
                     st.write(f"{model_category}: {sentiment}")
             else:
                 st.warning("Masukkan kalimat terlebih dahulu.")
-    else:
+    with tab_csv:
         # Input file CSV
         uploaded_file = st.file_uploader("Upload File CSV", type=["csv"])
         # Pilihan model
