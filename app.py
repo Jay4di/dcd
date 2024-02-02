@@ -264,7 +264,6 @@ elif selected_tab == 'Predict Sentimen':
     # Input teks
     tab_predict = st.tabs(["Write Comment", "Upload CSV"])
     if tab_predict == 'Write Comment':
-    with tab1:
         new_text = st.text_area("Masukkan kalimat untuk diprediksi sentimennya:")
 
         # Pilihan model
