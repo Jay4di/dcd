@@ -318,7 +318,7 @@ elif selected_tab == 'Topic Modeling':
         st.title("Topic Modeling dengan LDA")
 
         # Select option
-        option = st.radio("Select Option", ['All Aspects', 'Select Aspect'], horizontal ='True')
+        option = st.radio("Select Option", ['All Aspects', 'Select Aspect'], horizontal =True)
         
         if option == 'Select Aspect':
             # Select aspect
