@@ -284,7 +284,7 @@ elif selected_tab == 'Predict Sentimen':
         model_type = st.selectbox("Pilih Model Machine Learning:", ['nb', 'svm', 'rf', 'dt', 'lr'])
 
         # Tombol untuk melakukan prediksi
-        if st.button("Prediksi Sentimen") and uploaded_file:
+        if st.button("Prediksi File") and uploaded_file:
         # Membaca file CSV
             df = pd.read_csv(uploaded_file)
 
