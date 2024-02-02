@@ -284,7 +284,6 @@ elif selected_tab == 'Predict Sentimen':
     else:
         # Input file CSV
         uploaded_file = st.file_uploader("Upload File CSV", type=["csv"])
-        df_new = {}
         # Pilihan model
         model_type = st.selectbox("Pilih Model Machine Learning:", ['nb', 'svm', 'rf', 'dt', 'lr'])
 
@@ -292,6 +291,8 @@ elif selected_tab == 'Predict Sentimen':
         if st.button("Prediksi File") and uploaded_file:
         # Membaca file CSV
             df_new = pd.read_csv(uploaded_file)
+            # Mengonversi teks menggunakan CountVectorizer
+            X = vectorizer.transform(df_new['text'])
 
         # Membaca kembali model dari file pickle
         with open(f'{model_type}_models.pickle', 'rb') as model_file:
@@ -301,8 +302,6 @@ elif selected_tab == 'Predict Sentimen':
         #with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
             #vectorizer = pickle.load(vectorizer_file)
         
-        # Mengonversi teks menggunakan CountVectorizer
-        X = vectorizer.transform(df_new['text'])
 
         # Mengevaluasi model
         predictions = pd.DataFrame({'id': df_new['id'], 'text': df_new['text']})
