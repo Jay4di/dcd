@@ -157,19 +157,20 @@ if selected_tab == 'Business Case':
     Evaluasi kualitas layanan pariwisata di candi borobudur dapat dilakukan dengan memanfaatkan ulasan internet. Oleh karena itu, pada project ini akan dikembangkan sebuah model analisis sentimen berbasis aspek periwisata untuk evaluasi pelayanan serta topik modeling untuk identifikasi topik-topik terkait aspek pelayanan tersebut.
     ## Problem Scope
     Pada project ini akan digunakan Data ulasan yang berasal dari hasil scraping pada platform google maps terkait destinasi wisata candi borobudur.
-    asil scraping kemudian di anotasi dengan oleh tiga orang anotator berbeda agar penilaian sentimen tidak subjektif. Metode penentuan label akhir yaitu apakah positif, negatif, netral untuk setiap aspek dilakukan dengan voting nilai terbanyak.
+    ## Dataset
+    Data hasil scraping kemudian di anotasi dengan oleh tiga orang anotator berbeda agar penilaian sentimen tidak subjektif. Metode penentuan label akhir yaitu apakah positif, negatif, netral untuk setiap aspek dilakukan dengan voting nilai terbanyak. Selanjutnya, dataset tersebut akan di latih dengan beberapa model machine learning untuk mencari model dengan preforma terbaik. Model dengan performa terbaik akan digunakan untuk membuat analisis sentimen berbasis aspek. Kemudian dilakukan topic modeling dengan LDA pada masing-masing aspek untuk menemukan topik-topik yang berpengaruh pada aspek tersebut.
 
     Dataset yang telah di anotasi mengandung informasi sebagai berikut:
     - Nomor     : Urutan ulasan
     - Ulasan    : Ulasan dalam bahasa indonesia
-    - DayaTarik : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
-    - Amenitas  : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
-    - Aksesibilitas : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
-    - Citra     : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
-    - Harga     : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
-    - SDM   : salah satu aspek pariwisata, 1 untuk positif, -1 untuk negatif, 0 untuk netral dan “ –“ berarti tidak terkait
+    - DayaTarik : Aspek ini dinilai berdasarkan komentar tentang daya tarik lingkungan candi, termasuk objek candi, arsitektur, sejarah, keindahan alam, taman, dan berbagai acara seperti Prambanan Jazz Festival, Borobudur Marathon, atau festival budaya.
+    - Amenitas  : Aspek ini dievaluasi berdasarkan kenyamanan pengunjung di lingkungan candi, termasuk ketersediaan air, pepohonan, akses telekomunikasi, fasilitas sanitasi, tempat sampah, pos keamanan, parkir, tempat ibadah, penginapan, restoran, transportasi, fasilitas kesehatan, penyewaan sepeda, toko oleh-oleh, informasi pariwisata, dan penyewaan peralatan
+    - Aksesibilitas : Aspek ini berfokus pada aksesibilitas menuju dan di dalam candi. Melibatkan komentar terkait infrastruktur jalan, bandara, jalur kereta api, jarak, waktu tempuh, pintu keluar, jalur khusus untuk disabilitas dan orangtua di dalam candi, transportasi umum, dan kebijakan hewan peliharaan di dalam candi.
+    - Citra     : Aspek ini dinilai berdasarkan citra yang terbentuk di sekitar candi, termasuk komentar tentang kebersihan lingkungan, perilaku ramah dari pengunjung dan pedagang, serta suasana dan cuaca di sekitar candi.
+    - Harga     : Aspek ini dinilai berdasarkan komentar terkait aspek finansial kunjungan ke candi, melibatkan harga tiket masuk, biaya transportasi, tarif pemandu, akomodasi, makanan, aktivitas di sekitar candi, dan biaya parkir.
+    - SDM   : Aspek ini dievaluasi berdasarkan komentar terkait kemampuan, pelayanan, dan keramahan staf candi, termasuk petugas tiket masuk, keamanan, kebersihan, pemandu wisata, dan manajemen. Komentar dapat mencakup keterampilan bahasa, jumlah staf, respons terhadap pertanyaan atau keluhan pengunjung, serta keramahan dan kualitas keahlian staf.
     
-    Selanjutnya, dataset tersebut akan di latih dengan beberapa model machine learning untuk mencari model dengan preforma terbaik. Model dengan performa terbaik akan digunakan untuk membuat analisis sentimen berbasis aspek. Kemudian dilakukan topic modeling dengan LDA pada masing-masing aspek untuk menemukan topik-topik yang berpengaruh pada aspek tersebut.
+    Dataset disadur dari https://github.com/dian9395/dataset-analisis-sentimen-berbasis-aspek-dan-pemodelan-topik dengan jurnal https://jurnal.pnj.ac.id/index.php/multinetics/article/view/5056.
     ## Business Impact 
     Untuk Untuk pengelola destinasi wisata, hasil proyek ini dapat memiliki beberapa manfaat yang signifikan:
     1. Peningkatan Pelayanan: Hasil proyek ini dapat digunakan sebagai referensi untuk meningkatkan kualitas pelayanan di sekitar objek pariwisata. Dengan menganalisis ulasan dari pengunjung, pengelola dapat mengidentifikasi aspek-aspek yang perlu diperbaiki dalam layanan mereka. Ini dapat mencakup masalah seperti keramahan staf, kebersihan, fasilitas, dan lainnya. Dengan informasi ini, pengelola dapat melakukan perbaikan yang lebih terarah.
