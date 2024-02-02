@@ -67,6 +67,22 @@ def predict_sentiment(new_text, model_type='naive_bayes'):
 
     return predictions
 
+# Fungsi untuk menampilkan hasil prediksi dalam bentuk tabel
+def show_prediction_table(predictions):
+    st.subheader("Hasil Prediksi Sentimen:")
+    st.write(predictions)
+
+# Fungsi untuk menampilkan diagram batang rangkuman prediksi
+def show_summary_plot(predictions):
+    st.subheader("Rangkuman Prediksi:")
+    for category in ['daya_tarik', 'amenitas', 'aksesibilitas', 'citra', 'harga', 'sdm']:
+        plt.figure(figsize=(8, 5))
+        sns.countplot(x=f'{category}_sentiment', data=predictions, palette='viridis')
+        plt.title(f'Rangkuman Prediksi {category.capitalize()}')
+        plt.xlabel('Sentiment')
+        plt.ylabel('Jumlah')
+        st.pyplot()
+
 
 # WordCloud untuk LDA (Per Aspek)
 def generate_wordcloud(sentiment_column, display_positive=True, display_negative=True):
@@ -242,22 +258,55 @@ elif selected_tab == 'Model Performance':
 elif selected_tab == 'Predict Sentimen':
     st.write("### Prediksi Sentiment ###")
     # Input teks
-    new_text = st.text_area("Masukkan kalimat untuk diprediksi sentimennya:")
+    tab1, tab2 = st.tabs(["Write Comment", "Upload CSV"])
+    with tab1:
+        new_text = st.text_area("Masukkan kalimat untuk diprediksi sentimennya:")
 
-    # Pilihan model
-    model_type = st.selectbox("Pilih Model Machine Learning:", ['nb_models', 'svm_models', 'rf_models', 'dt_models', 'lr_models'])
+        # Pilihan model
+        model_type = st.selectbox("Pilih Model Machine Learning:", ['nb_models', 'svm_models', 'rf_models', 'dt_models', 'lr_models'])
 
-    # Tombol untuk melakukan prediksi
-    if st.button("Prediksi Sentimen"):
+        # Tombol untuk melakukan prediksi
+        if st.button("Prediksi Sentimen"):
         
-        if new_text:
-            predictions = predict_sentiment(new_text, model_type=model_type)
-            # Menampilkan hasil prediksi
-            st.subheader("Hasil Prediksi Sentimen:")
-            for model_category, sentiment in predictions.items():
-                st.write(f"{model_category}: {sentiment}")
-        else:
-            st.warning("Masukkan kalimat terlebih dahulu.")
+            if new_text:
+                predictions = predict_sentiment(new_text, model_type=model_type)
+                # Menampilkan hasil prediksi
+                st.subheader("Hasil Prediksi Sentimen:")
+                for model_category, sentiment in predictions.items():
+                    st.write(f"{model_category}: {sentiment}")
+            else:
+                st.warning("Masukkan kalimat terlebih dahulu.")
+    with tab2:
+        # Input file CSV
+        uploaded_file = st.file_uploader("Upload File CSV", type=["csv"])
+
+        # Pilihan model
+        model_type = st.selectbox("Pilih Model Machine Learning:", ['nb', 'svm', 'rf', 'dt', 'lr'])
+
+        # Tombol untuk melakukan prediksi
+        if st.button("Prediksi Sentimen") and uploaded_file:
+        # Membaca file CSV
+            df = pd.read_csv(uploaded_file)
+
+        # Membaca kembali model dari file pickle
+        with open(f'{model_type}_models.pickle', 'rb') as model_file:
+            models = pickle.load(model_file)
+
+        # Mengonversi teks menggunakan CountVectorizer
+        X = vectorizer.transform(df['text'])
+
+        # Mengevaluasi model
+        predictions = pd.DataFrame({'id': df['id'], 'text': df['text']})
+        for category, model in models.items():
+            sentiment = model.predict(X)
+            predictions[f'{category}_sentiment'] = sentiment
+
+        # Menampilkan hasil prediksi
+        show_prediction_table(predictions)
+
+        # Menampilkan diagram batang rangkuman prediksi
+        show_summary_plot(predictions)
+
 
 elif selected_tab == 'Topic Modeling':
     def main():
