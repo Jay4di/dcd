@@ -283,7 +283,7 @@ elif selected_tab == 'Predict Sentimen':
     with tab2:
         # Input file CSV
         uploaded_file = st.file_uploader("Upload File CSV", type=["csv"])
-
+        df = {}
         # Pilihan model
         model_type = st.selectbox("Pilih Model Machine Learning:", ['nb', 'svm', 'rf', 'dt', 'lr'])
 
