@@ -291,7 +291,11 @@ elif selected_tab == 'Predict Sentimen':
         # Membaca kembali model dari file pickle
         with open(f'{model_type}_models.pickle', 'rb') as model_file:
             models = pickle.load(model_file)
-
+        
+        # Membaca kembali objek CountVectorizer dari file
+        with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
+            vectorizer = pickle.load(vectorizer_file)
+        
         # Mengonversi teks menggunakan CountVectorizer
         X = vectorizer.transform(df['text'])
 
