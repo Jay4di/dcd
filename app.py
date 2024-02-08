@@ -16,9 +16,23 @@ from sklearn.decomposition import LatentDirichletAllocation
 from streamlit_option_menu import option_menu
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
+# Kamus untuk mapping nama baru
+mapping = {
+    'daya_tarik': 'Daya Tarik',
+    'amenitas': 'Amenitas',
+    'aksesibilitas': 'Aksesibilitas',
+    'citra': 'Citra',
+    'harga': 'Harga',
+    'sdm': 'SDM'
+}
+
 # load clean dataset
 data_clean = pd.read_pickle('data_clean.pickle')
 data_raw = pd.read_pickle('data_raw.pickle')
+
+# Mengubah nama kolom
+data_clean = data_clean.rename(columns=mapping)
+data_raw = data_raw.rename(columns=mapping)
 
 # Membaca kembali objek CountVectorizer dari file
 with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
@@ -41,6 +55,11 @@ plt.close(fig)
 #Load File Evaluasi
 with open('all_evaluations.pickle', 'rb') as evaluations_file:
     all_evaluations = pickle.load(evaluations_file)
+
+# Loop untuk mengubah kunci
+for model, features in all_evaluations.items():
+    for feature in list(features.keys()):
+        features[mapping[feature]] = features.pop(feature)
 
 # Membuat DataFrame dari data evaluasi
 df_evaluations = pd.DataFrame.from_dict({(model, aspect, metric): all_evaluations[model][aspect][metric] 
@@ -128,6 +147,14 @@ def generate_combined_wordcloud(display_positive=True, display_negative=True):
         plt.imshow(wordcloud_pos, interpolation='bilinear')
         plt.axis('off')
         st.pyplot()
+
+mapping_model = {
+    'Naive Bayes': 'nb_models',
+    'SVM': 'svm_models',
+    'Random Forest': 'rf_models',
+    'Decision Tree': 'dt_models',
+    'Logistic Regression': 'lr_models'
+}
 
 
 # Streamlit App
@@ -219,16 +246,15 @@ elif selected_tab == 'Model Performance':
             })
 
         df_table = pd.DataFrame(table_data)
-    
+
     tab1, tab2 = st.tabs(["Tabel", "Plot"])
 
     # Tampilan Tabel
     with tab1:
        # Create DataFrame for table
-        # Display table
+       # Display table
         st.table(df_table.pivot_table(index='Model', columns='Aspek', values='Accuracy', aggfunc='mean', margins=True, margins_name='Total'))
 
-        
     with tab2:
         model_list = list(all_evaluations.keys())
         selected_model = st.selectbox("Pilih Model", ["Semua Model"] + model_list)
@@ -281,21 +307,29 @@ elif selected_tab == 'Model Performance':
 
 elif selected_tab == 'Predict Sentimen':
     st.header("Predict Sentiment")
+
+    # Pilihan yang ditampilkan dalam dropdown
+    options_display = list(mapping_model.keys())
+
+    # Pilihan yang diterima oleh selectbox
+    options_value = list(mapping_model.values())
+
+    # Selectbox
+    model_type = st.selectbox("Pilih Model Machine Learning:", options_display)
+
+    # Mendapatkan nilai yang sesuai dengan pilihan yang dipilih
+    selected_value = mapping_model[model_type]
+
     # Input teks
-    # Select option
-    #option_predict = st.radio("Select Option", ['Write Comment', 'Upload CSV'])
     tab_comment, tab_csv = st.tabs(["Write Comment", "Upload CSV"])
     with tab_comment:
         new_text = st.text_area("Masukkan kalimat untuk diprediksi sentimennya:")
-
-        # Pilihan model
-        model_type = st.selectbox("Pilih Model Machine Learning:", ['nb_models', 'svm_models', 'rf_models', 'dt_models', 'lr_models'])
 
         # Tombol untuk melakukan prediksi
         if st.button("Prediksi Sentimen"):
         
             if new_text:
-                predictions = predict_sentiment(new_text, model_type=model_type)
+                predictions = predict_sentiment(new_text, model_type=selected_value)
                 # Menampilkan hasil prediksi
                 st.subheader("Hasil Prediksi Sentimen:")
                 for model_category, sentiment in predictions.items():
@@ -305,8 +339,6 @@ elif selected_tab == 'Predict Sentimen':
     with tab_csv:
         # Input file CSV
         uploaded_file = st.file_uploader("Upload File CSV", type=["csv"])
-        # Pilihan model
-        model_type = st.selectbox("Pilih Model Machine Learning:", ['nb', 'svm', 'rf', 'dt', 'lr'])
 
         # Tombol untuk melakukan prediksi
         if st.button("Prediksi File") and uploaded_file:
@@ -316,7 +348,7 @@ elif selected_tab == 'Predict Sentimen':
             X = vectorizer.transform(df_new['text'])
 
             # Membaca kembali model dari file pickle
-            with open(f'{model_type}_models.pickle', 'rb') as model_file:
+            with open(f'{selected_value}_models.pickle', 'rb') as model_file:
                 models = pickle.load(model_file)
 
             # Mengevaluasi model
@@ -330,6 +362,7 @@ elif selected_tab == 'Predict Sentimen':
 
             # Menampilkan diagram batang rangkuman prediksi
             show_summary_plot(predictions)
+
 
 
 elif selected_tab == 'Topic Modeling':
