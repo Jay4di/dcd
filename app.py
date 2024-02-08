@@ -151,43 +151,62 @@ with st.sidebar:
         )
 
 if selected_tab == 'Business Case':
-    st.markdown(""" ## Background
-    Untuk meningkatkan kualitas pariwisata, pendapat dan ulasan pengunjung dianggap sebagai wawasan berharga untuk meningkatkan layanan. Dengan kemajuan teknologi informasi, ulasan pengunjung dapat ditemukan di internet dan platform media sosial. Namun, ada dua tantangan dalam memanfaatkan data ulasan online. Tantangan pertama adalah bagaimana cara mendapatkan sejumlah besar data ulasan yang tersebar di internet. Tantangan kedua adalah bagaimana mengolah data ulasan ini untuk mengambil wawasan yang berguna. Untuk masalah pertama, teknik web scraping adalah salah satu metode yang umum digunakan saat ini. Ini melibatkan ekstraksi data dari halaman web atau dokumen lain dengan tujuan mengambil informasi yang terstruktur atau tidak terstruktur dan menyimpannya dalam format yang dapat digunakan. Sementara itu, untuk tantangan kedua, metode berpikir kritis dapat digunakan oleh manusia untuk mengatasi masalah ini dengan membaca dan merangkum ulasan. Namun, ini menjadi tantangan baru ketika ulasan dihasilkan dengan cepat (velocity) dan dalam jumlah besar (volume). Ini berarti mengandalkan metode berpikir kritis saja mungkin tidak cukup. Selain itu, pertimbangan lainnya adalah bahwa teknik analisis manusia seringkali bersifat "subjektif" dan dapat berbeda tergantung pada sudut pandang penilai.
-    ## Project Idea
-    Evaluasi kualitas layanan pariwisata di candi borobudur dapat dilakukan dengan memanfaatkan ulasan internet. Oleh karena itu, pada project ini akan dikembangkan sebuah model analisis sentimen berbasis aspek periwisata untuk evaluasi pelayanan serta topik modeling untuk identifikasi topik-topik terkait aspek pelayanan tersebut.
-    ## Problem Scope
-    Pada project ini akan digunakan Data ulasan yang berasal dari hasil scraping pada platform google maps terkait destinasi wisata candi borobudur. Selanjutnya, dataset tersebut akan di latih dengan beberapa model machine learning untuk mencari model dengan preforma terbaik. Model dengan performa terbaik akan digunakan untuk membuat analisis sentimen berbasis aspek. Kemudian dilakukan topic modeling dengan LDA pada masing-masing aspek untuk menemukan topik-topik yang berpengaruh pada aspek tersebut.
+    st.subheader("Exploring Tourist Reviews: Aspect-Based Sentiment Analysis and Topic Modeling for Destination Enhancement")
+    tab_background, tab_problem, tab_data = st.tabs(["Background", "Problem Scope", "Data Understanding"])
+    with tab_background:
+        st.subheader("Project Idea")
+        st.markdown(""" <div style="text-align: justify">
+                    <b style="color:green;">Evaluasi kualitas layanan</b> pariwisata di candi borobudur dapat dilakukan dengan <b style="color:green;">memanfaatkan ulasan internet</b>. Oleh karena itu, pada project ini akan dikembangkan sebuah model <b style="color:green;">analisis sentimen berbasis aspek</b> periwisata untuk <b style="color:green;">evaluasi pelayanan</b> serta <b style="color:green;">topik modeling</b> untuk <b style="color:green;">identifikasi topik-topik</b> terkait aspek pelayanan tersebut.
+                    </div>
+                    """, unsafe_allow_html=True)
+        st.header("WordCloud")
+        # Menampilkan gambar menggunakan st.image
+        fig
+        
+    with tab_problem:
+        st.subheader("Problem Scope")
+        st.markdown(""" <div style="text-align: justify">
+                    Pada project ini akan digunakan Data ulasan yang berasal dari hasil scraping pada platform google maps terkait destinasi wisata candi borobudur. Selanjutnya, dataset tersebut akan di latih dengan beberapa model machine learning untuk mencari model dengan preforma terbaik. Model dengan performa terbaik akan digunakan untuk membuat analisis sentimen berbasis aspek. Kemudian dilakukan topic modeling dengan LDA pada masing-masing aspek untuk menemukan topik-topik yang berpengaruh pada aspek tersebut.
+                    </div>
+                    """, unsafe_allow_html=True)
 
-    ## Dataset
-    Data hasil scraping kemudian di anotasi dengan oleh tiga orang anotator berbeda agar penilaian sentimen tidak subjektif. Metode penentuan label akhir yaitu apakah positif, negatif, netral untuk setiap aspek dilakukan dengan voting nilai terbanyak. 
-    Dataset yang telah di anotasi mengandung informasi sebagai berikut:
-    - Nomor     : Urutan ulasan
-    - Ulasan    : Ulasan dalam bahasa indonesia
-    - DayaTarik : Aspek ini dinilai berdasarkan komentar tentang daya tarik lingkungan candi, termasuk objek candi, arsitektur, sejarah, keindahan alam, taman, dan berbagai acara seperti Prambanan Jazz Festival, Borobudur Marathon, atau festival budaya.
-    - Amenitas  : Aspek ini dievaluasi berdasarkan kenyamanan pengunjung di lingkungan candi, termasuk ketersediaan air, pepohonan, akses telekomunikasi, fasilitas sanitasi, tempat sampah, pos keamanan, parkir, tempat ibadah, penginapan, restoran, transportasi, fasilitas kesehatan, penyewaan sepeda, toko oleh-oleh, informasi pariwisata, dan penyewaan peralatan
-    - Aksesibilitas : Aspek ini berfokus pada aksesibilitas menuju dan di dalam candi. Melibatkan komentar terkait infrastruktur jalan, bandara, jalur kereta api, jarak, waktu tempuh, pintu keluar, jalur khusus untuk disabilitas dan orangtua di dalam candi, transportasi umum, dan kebijakan hewan peliharaan di dalam candi.
-    - Citra     : Aspek ini dinilai berdasarkan citra yang terbentuk di sekitar candi, termasuk komentar tentang kebersihan lingkungan, perilaku ramah dari pengunjung dan pedagang, serta suasana dan cuaca di sekitar candi.
-    - Harga     : Aspek ini dinilai berdasarkan komentar terkait aspek finansial kunjungan ke candi, melibatkan harga tiket masuk, biaya transportasi, tarif pemandu, akomodasi, makanan, aktivitas di sekitar candi, dan biaya parkir.
-    - SDM   : Aspek ini dievaluasi berdasarkan komentar terkait kemampuan, pelayanan, dan keramahan staf candi, termasuk petugas tiket masuk, keamanan, kebersihan, pemandu wisata, dan manajemen. Komentar dapat mencakup keterampilan bahasa, jumlah staf, respons terhadap pertanyaan atau keluhan pengunjung, serta keramahan dan kualitas keahlian staf.
-    
-    Dataset disadur dari https://github.com/dian9395/dataset-analisis-sentimen-berbasis-aspek-dan-pemodelan-topik dengan jurnal https://jurnal.pnj.ac.id/index.php/multinetics/article/view/5056.
-    ## Business Impact 
-    Untuk Untuk pengelola destinasi wisata, hasil proyek ini dapat memiliki beberapa manfaat yang signifikan:
-    1. Peningkatan Pelayanan: Hasil proyek ini dapat digunakan sebagai referensi untuk meningkatkan kualitas pelayanan di sekitar objek pariwisata. Dengan menganalisis ulasan dari pengunjung, pengelola dapat mengidentifikasi aspek-aspek yang perlu diperbaiki dalam layanan mereka. Ini dapat mencakup masalah seperti keramahan staf, kebersihan, fasilitas, dan lainnya. Dengan informasi ini, pengelola dapat melakukan perbaikan yang lebih terarah.
-    2. Informasi yang Lebih Mendalam: Analisis ulasan yang mencakup aspek dan topik terkait dapat membantu pengelola untuk menggali informasi yang lebih mendalam tentang apa yang perlu ditingkatkan dalam layanan mereka. Ini tidak hanya mencakup masalah umum, tetapi juga detail-detail yang mungkin terlewatkan tanpa tinjauan yang cermat.
-    3. Efisiensi Anggaran: Proyek ini juga dapat membantu pengelola menghemat anggaran yang biasanya digunakan untuk mengukur kepuasan pelanggan secara tradisional. Metode tradisional seringkali melibatkan survei yang mahal dan sumber daya lainnya. Dengan menggunakan ulasan online yang sudah ada, pengelola dapat mendapatkan wawasan yang sama atau lebih baik tanpa biaya tambahan.
-    4. Peningkatan Reputasi: Dengan mengambil tindakan yang sesuai berdasarkan ulasan, pengelola dapat meningkatkan reputasi destinasi mereka. Ulasan positif dari pengunjung akan menarik lebih banyak pelanggan potensial, sementara perbaikan yang dilakukan akan mengurangi keluhan dan ulasan negatif.
-    5. Pengambilan Keputusan yang Lebih Baik: Informasi yang diberikan oleh hasil proyek ini dapat menjadi panduan berharga untuk pengelola destinasi dalam mengambil keputusan terkait perbaikan layanan, pengembangan fasilitas, atau strategi pemasaran.
-    
-    Secara keseluruhan, hasil proyek ini dapat memberikan wawasan berharga kepada pengelola destinasi wisata, membantu mereka meningkatkan pengalaman pengunjung, menghemat biaya, dan meningkatkan reputasi destinasi mereka.
-    """)
-    st.header("WordCloud")
-    # Menampilkan gambar menggunakan st.image
-    st.image(image_stream.getvalue(), use_column_width=True)
+        st.subheader("Business Impact")
+        st.markdown("""
+        <div style="text-align: justify">
+        <ol>
+        <li> Peningkatan Pelayanan: Hasil proyek ini dapat digunakan sebagai referensi untuk meningkatkan kualitas pelayanan di sekitar objek pariwisata. Dengan menganalisis ulasan dari pengunjung, pengelola dapat mengidentifikasi aspek-aspek yang perlu diperbaiki dalam layanan mereka. Ini dapat mencakup masalah seperti keramahan staf, kebersihan, fasilitas, dan lainnya. Dengan informasi ini, pengelola dapat melakukan perbaikan yang lebih terarah.</li>
+        <li> Informasi yang Lebih Mendalam: Analisis ulasan yang mencakup aspek dan topik terkait dapat membantu pengelola untuk menggali informasi yang lebih mendalam tentang apa yang perlu ditingkatkan dalam layanan mereka. Ini tidak hanya mencakup masalah umum, tetapi juga detail-detail yang mungkin terlewatkan tanpa tinjauan yang cermat.</li>
+        <li> Efisiensi Anggaran: Proyek ini juga dapat membantu pengelola menghemat anggaran yang biasanya digunakan untuk mengukur kepuasan pelanggan secara tradisional. Metode tradisional seringkali melibatkan survei yang mahal dan sumber daya lainnya. Dengan menggunakan ulasan online yang sudah ada, pengelola dapat mendapatkan wawasan yang sama atau lebih baik tanpa biaya tambahan.</li>
+        <li> Peningkatan Reputasi: Dengan mengambil tindakan yang sesuai berdasarkan ulasan, pengelola dapat meningkatkan reputasi destinasi mereka. Ulasan positif dari pengunjung akan menarik lebih banyak pelanggan potensial, sementara perbaikan yang dilakukan akan mengurangi keluhan dan ulasan negatif.</li>
+        <li> Pengambilan Keputusan yang Lebih Baik: Informasi yang diberikan oleh hasil proyek ini dapat menjadi panduan berharga untuk pengelola destinasi dalam mengambil keputusan terkait perbaikan layanan, pengembangan fasilitas, atau strategi pemasaran.</li>
+        </ol>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+    with tab_data:
+        st.subheader("Dataset")        
+        st.markdown("""
+        <div style="text-align: justify">
+        Data hasil scraping kemudian di anotasi dengan oleh tiga orang anotator berbeda agar penilaian sentimen tidak subjektif. Metode penentuan label akhir yaitu apakah positif, negatif, netral untuk setiap aspek dilakukan dengan voting nilai terbanyak.</li>
+        Dataset yang telah di anotasi mengandung informasi sebagai berikut:
+            <ol>
+            <li>Nomor: Urutan ulasan</li>
+            <li>Text: Ulasan dalam bahasa Indonesia</li>
+            <li>DayaTarik: Aspek ini dinilai berdasarkan komentar tentang daya tarik lingkungan candi, termasuk objek candi, arsitektur, sejarah, keindahan alam, taman, dan berbagai acara seperti Prambanan Jazz Festival, Borobudur Marathon, atau festival budaya.</li>
+            <li>Amenitas: Aspek ini dievaluasi berdasarkan kenyamanan pengunjung di lingkungan candi, termasuk ketersediaan air, pepohonan, akses telekomunikasi, fasilitas sanitasi, tempat sampah, pos keamanan, parkir, tempat ibadah, penginapan, restoran, transportasi, fasilitas kesehatan, penyewaan sepeda, toko oleh-oleh, informasi pariwisata, dan penyewaan peralatan.</li>
+            <li>Aksesibilitas: Aspek ini berfokus pada aksesibilitas menuju dan di dalam candi. Melibatkan komentar terkait infrastruktur jalan, bandara, jalur kereta api, jarak, waktu tempuh, pintu keluar, jalur khusus untuk disabilitas dan orang tua di dalam candi, transportasi umum, dan kebijakan hewan peliharaan di dalam candi.</li>
+            <li>Citra: Aspek ini dinilai berdasarkan citra yang terbentuk di sekitar candi, termasuk komentar tentang kebersihan lingkungan, perilaku ramah dari pengunjung dan pedagang, serta suasana dan cuaca di sekitar candi.</li>
+            <li>Harga: Aspek ini dinilai berdasarkan komentar terkait aspek finansial kunjungan ke candi, melibatkan harga tiket masuk, biaya transportasi, tarif pemandu, akomodasi, makanan, aktivitas di sekitar candi, dan biaya parkir.</li>
+            <li>SDM: Aspek ini dievaluasi berdasarkan komentar terkait kemampuan, pelayanan, dan keramahan staf candi, termasuk petugas tiket masuk, keamanan, kebersihan, pemandu wisata, dan manajemen. Komentar dapat mencakup keterampilan bahasa, jumlah staf, respons terhadap pertanyaan atau keluhan pengunjung, serta keramahan dan kualitas keahlian staf.</li>
+        </ol>
+        Dataset disadur dari <a href="https://github.com/dian9395/dataset-analisis-sentimen-berbasis-aspek-dan-pemodelan-topik">GitHub</a> dengan jurnal <a href="https://jurnal.pnj.ac.id/index.php/multinetics/article/view/5056">MultiNetics</a>.</li>
+        </div>
+        """, unsafe_allow_html=True)
 
 elif selected_tab == 'Model Performance':
     # Streamlit App
-    st.title("Model Evaluation Metrics")
+    st.header("Model Evaluation")
     # Sidebar
     st.text("Select View")
     table_data = []
@@ -261,7 +280,7 @@ elif selected_tab == 'Model Performance':
 
 
 elif selected_tab == 'Predict Sentimen':
-    st.write("### Prediksi Sentiment ###")
+    st.header("Predict Sentiment")
     # Input teks
     # Select option
     #option_predict = st.radio("Select Option", ['Write Comment', 'Upload CSV'])
@@ -315,7 +334,7 @@ elif selected_tab == 'Predict Sentimen':
 
 elif selected_tab == 'Topic Modeling':
     def main():
-        st.title("Topic Modeling dengan LDA")
+        st.header("Topic Modeling dengan LDA")
 
         # Select option
         option = st.radio("Select Option", ['All Aspects', 'Select Aspect'])
@@ -325,15 +344,17 @@ elif selected_tab == 'Topic Modeling':
             selected_aspect = st.selectbox("Select Aspect", data_clean.columns[2:])
         
             # Display positive and/or negative sentiment word clouds
-            display_positive = st.checkbox("Display Positive Sentiment", value=True)
             display_negative = st.checkbox("Display Negative Sentiment", value=True)
+            display_positive = st.checkbox("Display Positive Sentiment", value=True)
+
         
             # Generate and display word cloud
             generate_wordcloud(selected_aspect, display_positive, display_negative)
         else:
             # Display positive and/or negative sentiment word clouds
-            display_positive = st.checkbox("Display Positive Sentiment", value=True)
             display_negative = st.checkbox("Display Negative Sentiment", value=True)
+            display_positive = st.checkbox("Display Positive Sentiment", value=True)
+
         
             # Generate and display word cloud for combined text
             generate_combined_wordcloud(display_positive, display_negative)
@@ -346,7 +367,7 @@ elif selected_tab == 'Dataset':
     data_tampil = pd.DataFrame(data_raw)
 
     # Streamlit App
-    st.title('Dataset Candi Borobudur')
+    st.header('Dataset Candi Borobudur')
 
     # Pilihan aspek
     selected_aspek = st.selectbox('Pilih Aspek:', ['Semua Aspek'] + list(data_tampil.columns[2:]))
@@ -369,7 +390,7 @@ elif selected_tab == 'Dataset':
 
 elif selected_tab == 'About Me':
     # Judul halaman
-    st.subheader("About Me")
+    st.header("About Me")
 
     st.write("- **Nama Lengkap:** Jayadi Butar Butar")
     st.write("- **Alamat:** Jakarta, Indonesia")
@@ -377,19 +398,16 @@ elif selected_tab == 'About Me':
 
     # Summary
     st.subheader("Summary")
-    st.write("""
+    st.markdown(""" <div style="text-align: justify">    
     I'm a motivated Data Professional with a strong background in scientific research, Data Science, and Machine Learning. 
     Proficient in Python, Rstudio, SQL, and Spreadsheets, I excel in qualitative and quantitative research. 
     My dynamic academic journey honed my strategic thinking, leadership, and problem-solving skills.
-
     I derive valuable insights from complex datasets and excel in presenting them for data-driven decision-making. 
     Passionate about Statistics, Data Science, and AI, I aim to make a significant impact in the world of data.
-
     Eager to learn and grow, I stay updated with the latest industry advancements through active training and self-directed learning. 
     My goal is to leverage my skills in data analysis and machine learning to solve complex problems and achieve meaningful outcomes.
-    
     If you're looking for a dedicated and analytical team player thriving in a data-driven environment, let's connect for outstanding results.
-    """)
+    """, unsafe_allow_html=True)
 
 
     # Tautan ke Akun Sosial Media
