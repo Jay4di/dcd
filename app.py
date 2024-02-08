@@ -348,7 +348,7 @@ elif selected_tab == 'Predict Sentimen':
             X = vectorizer.transform(df_new['text'])
 
             # Membaca kembali model dari file pickle
-            with open(f'{selected_value}_models.pickle', 'rb') as model_file:
+            with open(f'{selected_value}.pickle', 'rb') as model_file:
                 models = pickle.load(model_file)
 
             # Mengevaluasi model
