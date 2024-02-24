@@ -14,6 +14,7 @@ from gensim import corpora
 from collections import defaultdict
 from sklearn.decomposition import LatentDirichletAllocation
 from streamlit_option_menu import option_menu
+from PIL import Image
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # Kamus untuk mapping nama baru
@@ -37,6 +38,9 @@ data_raw = data_raw.rename(columns=mapping)
 # Membaca kembali objek CountVectorizer dari file
 with open('count_vectorizer.pickle', 'rb') as vectorizer_file:
     vectorizer = pickle.load(vectorizer_file)
+
+# Memuat gambar dari file JPEG
+gambar = Image.open('bg.jpeg')
 
 # Membuat Word Cloud Untuk Background
 text = " ".join(review for review in data_clean.text)
@@ -186,6 +190,9 @@ if selected_tab == 'Business Case':
                     <b style="color:green;">Evaluasi kualitas layanan</b> pariwisata di candi borobudur dapat dilakukan dengan <b style="color:green;">memanfaatkan ulasan internet</b>. Oleh karena itu, pada project ini akan dikembangkan sebuah model <b style="color:green;">analisis sentimen berbasis aspek</b> periwisata untuk <b style="color:green;">evaluasi pelayanan</b> serta <b style="color:green;">topik modeling</b> untuk <b style="color:green;">identifikasi topik-topik</b> terkait aspek pelayanan tersebut.
                     </div>
                     """, unsafe_allow_html=True)
+        # Menampilkan gambar di aplikasi Streamlit
+        st.image(gambar, caption='Mindmap', use_column_width=True)    
+          
         st.header("WordCloud")
         # Menampilkan gambar menggunakan st.image
         fig
@@ -370,11 +377,17 @@ elif selected_tab == 'Topic Modeling':
         st.header("Topic Modeling dengan LDA")
 
         # Select option
-        option = st.radio("Select Option", ['All Aspects', 'Select Aspect'])
+        selected_aspect = st.selectbox("Select Aspect", ('Semua Aspek', 'Daya Tarik', 'Amenitas', 'Aksesibilitas', 'Citra', 'Harga', 'SDM'))
         
-        if option == 'Select Aspect':
-            # Select aspect
-            selected_aspect = st.selectbox("Select Aspect", data_clean.columns[2:])
+        if selected_aspect == 'Semua Aspek':
+            # Display positive and/or negative sentiment word clouds
+            display_negative = st.checkbox("Display Negative Sentiment", value=True)
+            display_positive = st.checkbox("Display Positive Sentiment", value=True)
+        
+            # Generate and display word cloud for combined text
+            generate_combined_wordcloud(display_positive, display_negative)
+        
+        else:
         
             # Display positive and/or negative sentiment word clouds
             display_negative = st.checkbox("Display Negative Sentiment", value=True)
@@ -383,14 +396,6 @@ elif selected_tab == 'Topic Modeling':
         
             # Generate and display word cloud
             generate_wordcloud(selected_aspect, display_positive, display_negative)
-        else:
-            # Display positive and/or negative sentiment word clouds
-            display_negative = st.checkbox("Display Negative Sentiment", value=True)
-            display_positive = st.checkbox("Display Positive Sentiment", value=True)
-
-        
-            # Generate and display word cloud for combined text
-            generate_combined_wordcloud(display_positive, display_negative)
 
     if __name__ == "__main__":
         main()
