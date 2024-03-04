@@ -153,11 +153,11 @@ def generate_combined_wordcloud(display_positive=True, display_negative=True):
         st.pyplot()
 
 mapping_model = {
+    'Logistic Regression': 'lr_models',
     'Naive Bayes': 'nb_models',
     'SVM': 'svm_models',
     'Random Forest': 'rf_models',
-    'Decision Tree': 'dt_models',
-    'Logistic Regression': 'lr_models'
+    'Decision Tree': 'dt_models'    
 }
 
 
@@ -183,6 +183,7 @@ with st.sidebar:
 
 if selected_tab == 'Business Case':
     st.subheader("Exploring Tourist Reviews: Aspect-Based Sentiment Analysis and Topic Modeling for Destination Enhancement")
+    st.caption("Analisis Sentimen Berbasis Aspek dan Pemodelan Topik Untuk Peningkatan Pelayanan Destinasi Pariwisata")
     tab_background, tab_problem, tab_data = st.tabs(["Background", "Problem Scope", "Data Understanding"])
     with tab_background:
         st.subheader("Project Idea")
